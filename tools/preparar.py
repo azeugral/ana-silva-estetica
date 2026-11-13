@@ -53,7 +53,7 @@ for nome, src, ar, larg, fx, fy, z, cx in J:
     salva(recorta(abre(src), ar, fx, fy, z, cx), nome, larg)
 
 # destaques (150 px) para medalhões
-for i, n in [(4, 'd-branq'), (1, 'd-micro'), (3, 'd-lifting'), (0, 'd-gems'), (5, 'd-cetim')]:
+for i, n in [(5, 'd-branq'), (2, 'd-micro'), (4, 'd-lifting'), (1, 'd-gems'), (7, 'd-cetim')]:
     salva(abre(f'destaque_{i}'), n, 150, 88)
 
 # voucher: a caixa com o logótipo, em quadrado
