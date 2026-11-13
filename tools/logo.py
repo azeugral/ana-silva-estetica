@@ -13,10 +13,10 @@ from PIL import Image
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 RAIZ = os.path.dirname(AQUI)
-SRC = os.path.join(RAIZ, '..', '_ref', 'ana-silva', 'logo', 'logo-oficial.webp')
+SRC = os.path.join(RAIZ, '..', '_ref', 'ana-silva', 'logo', 'logo-minimal.webp')
 OUT = os.path.join(RAIZ, 'assets', 'img')
 
-OURO = [(0, '#9A6B2C'), (.28, '#D6B068'), (.46, '#F3E0A8'), (.62, '#C0924A'), (.82, '#8E6227'), (1, '#B7893F')]
+OURO = [(0, '#E7C074'), (.35, '#D2A04B'), (.6, '#B9853A'), (.8, '#D6A956'), (1, '#C08C3E')]
 CACAU = '#2B1A14'
 
 
@@ -96,21 +96,6 @@ def main():
            f'<path fill="url(#g)" fill-rule="evenodd" d="{d_mono}"/></svg>')
     open(os.path.join(OUT, 'favicon.svg'), 'w').write(fav)
 
-    # PNGs do favicon a partir do raster original (ouro verdadeiro, sem perda)
-    a = im.crop((0, 0, corte // E, im.height))
-    ab = a.getbbox()
-    a = a.crop(ab)
-    for nome, px in (('favicon-32.png', 32), ('apple-touch-icon.png', 180), ('icon-512.png', 512)):
-        base = Image.new('RGBA', (px, px), CACAU)
-        alvo = int(px / 1.32) if px > 32 else int(px * .96)
-        m = a.copy(); m.thumbnail((alvo, alvo), Image.LANCZOS)
-        if px == 32:
-            # em 32 px o degradê some: monograma claro e chapado
-            alfa = m.split()[-1]
-            m = Image.new('RGBA', m.size, '#E2C384'); m.putalpha(alfa)
-        base.alpha_composite(m, ((px - m.width) // 2, (px - m.height) // 2))
-        base.save(os.path.join(OUT, nome))
-    Image.open(os.path.join(OUT, 'icon-512.png')).save(os.path.join(OUT, 'favicon.ico'), sizes=[(16, 16), (32, 32), (48, 48)])
     print('corte', corte / E, 'full', bf, 'mono', bm, len(d_full), len(d_mono))
 
 

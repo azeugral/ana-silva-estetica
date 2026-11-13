@@ -2,6 +2,7 @@
   const doc = document.documentElement;
   doc.classList.add('js');
   const reduz = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const WA = 'https://wa.me/message/MENNVN7SM6MRM1';
 
   // Nav: linha ao rolar
   const nav = document.querySelector('.nav');
@@ -19,31 +20,48 @@
   });
   menu.addEventListener('click', e => { if (e.target.closest('a')) fecha(); });
 
-  // Hero + escala de cor: o cursor vai do A3,5 ao 0M1 em ~1,3 s
+  // Hero
   const hero = document.querySelector('.hero');
-  const cursor = document.querySelector('.escala-cursor');
-  const tabs = [...document.querySelectorAll('.escala-svg .tab')];
-  const pos = i => `calc((${i}*84 + 42) / 672 * 100%)`;
-  const ativa = i => tabs.forEach((t, k) => {
-    t.classList.toggle('ativo', k === i);
-    t.querySelector('path').style.filter = k === i ? 'drop-shadow(0 6px 8px rgba(43,26,20,.18))' : '';
+  requestAnimationFrame(() => hero.classList.add('pronto'));
+
+  // Pedido de marcação
+  const form = document.getElementById('pedido');
+  const sens = document.getElementById('f-sens');
+  const nota = document.getElementById('pedido-nota');
+  const val = n => (form.querySelector(`input[name="${n}"]:checked`) || {}).value || '';
+  const atualizaSens = () => { sens.hidden = val('trat') !== 'Branqueamento dentário'; };
+  form.addEventListener('change', atualizaSens); atualizaSens();
+
+  // "Marcar" nos tratamentos pré-seleciona o tratamento
+  document.querySelectorAll('[data-trat]').forEach(a => a.addEventListener('click', () => {
+    const r = form.querySelector(`input[name="trat"][value="${a.dataset.trat}"]`);
+    if (r) { r.checked = true; atualizaSens(); }
+  }));
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const nome = form.nome.value.trim();
+    if (!nome) { form.nome.classList.add('erro'); form.nome.focus(); return; }
+    form.nome.classList.remove('erro');
+    const linhas = [
+      `Olá Ana! Chamo-me ${nome} e gostava de marcar uma avaliação.`,
+      `Tratamento: ${val('trat')}`,
+    ];
+    if (!sens.hidden) linhas.push(`Sensibilidade nos dentes: ${val('sens')}`);
+    const dia = form.dia.value.trim();
+    linhas.push(`Preferência: ${dia ? dia + ', ' : ''}${val('per').toLowerCase()}`);
+    const obs = form.obs.value.trim();
+    if (obs) linhas.push(`Nota: ${obs}`);
+    const msg = linhas.join('\n');
+    let copiou = false;
+    try { await navigator.clipboard.writeText(msg); copiou = true; } catch (_) {}
+    nota.textContent = copiou
+      ? 'Mensagem copiada. No WhatsApp, cola e envia.'
+      : 'Copia esta mensagem e envia no WhatsApp: ' + msg.replace(/\n/g, ' · ');
+    nota.classList.add('ok');
+    window.open(WA, '_blank', 'noopener');
   });
-  if (!reduz && cursor) {
-    cursor.style.transition = 'none';
-    cursor.style.left = pos(0); ativa(0);
-    void cursor.offsetWidth;
-    requestAnimationFrame(() => {
-      hero.classList.add('pronto');
-      setTimeout(() => {
-        cursor.style.transition = '';
-        cursor.style.left = pos(tabs.length - 1);
-        const passo = 1250 / (tabs.length - 1);
-        tabs.forEach((_, i) => setTimeout(() => ativa(i), i * passo));
-      }, 380);
-    });
-  } else {
-    hero.classList.add('pronto'); ativa(tabs.length - 1);
-  }
+  form.nome.addEventListener('input', () => form.nome.classList.remove('erro'));
 
   // Entradas: subida leve
   const els = document.querySelectorAll('.sobe');
